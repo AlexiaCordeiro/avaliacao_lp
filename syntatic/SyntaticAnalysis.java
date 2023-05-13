@@ -25,7 +25,7 @@ public class SyntaticAnalysis {
     }
 
     private void advance() {
-        // System.out.println("Found " + current);
+        //System.out.println("Found " + current);
         previous = current;
         current = next;
         next = lex.nextToken();
@@ -89,6 +89,7 @@ public class SyntaticAnalysis {
 
         while(check(Type.HASHTAG)){
             procMacro();
+            eat(Type.HASHTAG);
         }
 
     }
@@ -99,19 +100,19 @@ public class SyntaticAnalysis {
 
         if (checkNext(Type.HASHTAG)) {
             
-            if (check(Type.DEFINE)) {
+            if (match(Type.DEFINE)) {
                 procDefine();
-            }else if (check(Type.UNDEF)) {
+            }else if (match(Type.UNDEF)) {
                 procUndef();
-            }else if(check(Type.ERROR)) {
+            }else if(match(Type.ERROR)) {
                 procError();
-            }else if(check(Type.INCLUDE)) {
+            }else if(match(Type.INCLUDE)) {
                 procInclude();
-            }else if(check(Type.IFDEF)) {
+            }else if(match(Type.IFDEF)) {
                 procIfdef();
-            }else if(check(Type.IFNDEF)) {
+            }else if(match(Type.IFNDEF)) {
                 procIfndef();
-            }else if(check(Type.IF)) {
+            }else if(match(Type.IF)) {
                 procIf();
             }
         }
@@ -147,7 +148,6 @@ public class SyntaticAnalysis {
     private void procUndef(){
         eat(Type.HASHTAG);
         eat(Type.UNDEF);
-
         procName();
     }
     //<error> ::= '#' error <text>
@@ -212,7 +212,6 @@ public class SyntaticAnalysis {
         eat(Type.IFNDEF);
         procName();
         procMacro();
-
         if(match(Type.HASHTAG)){
             if(match(Type.ELIF, Type.ELSE)){
                 token = previous;
@@ -235,6 +234,7 @@ public class SyntaticAnalysis {
     
     //<if> ::= '#' if ( 'defined(name)'| '!defined(name)' ) <macro> [ <elif> | <else> ] <endif>
     private void procIf(){
+        
         Token token = null;
 
         eat(Type.HASHTAG);
@@ -275,6 +275,7 @@ public class SyntaticAnalysis {
                     break;
             }
         }
+        
         procEndif();
 
     }

@@ -61,8 +61,8 @@ public class macros {
                       lex.type != Type.INVALID_TOKEN &&
                       lex.type != Type.UNEXPECTED_EOF);
             
-            // O código a seguir é dado para testar o interpretador.
-            // TODO: descomentar depois que o analisador léxico estiver OK.
+
+            
             SyntaticAnalysis s = new SyntaticAnalysis(l);
             s.process();
 
@@ -70,8 +70,8 @@ public class macros {
         } catch (Exception e) {
             System.out.println("Não");
 
-             System.out.println(e.getMessage());
-             e.printStackTrace();
+             //System.out.println(e.getMessage());
+            // e.printStackTrace();
         }
     }
 

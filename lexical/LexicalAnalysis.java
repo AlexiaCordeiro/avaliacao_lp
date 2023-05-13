@@ -67,24 +67,41 @@ public class LexicalAnalysis implements AutoCloseable {
             int c = getc();
             switch (state) {
                 case 1:
-                if (c == ' ' || c == '\t' ||
+                if (c == '\t' ||
                         c == '\r') {
                     state = 1;
                 } else if (c == '\n') {
                     state = 1;
                     line++;
                 } else if (c == '#') {
-                    state = 2;
-                    token.lexeme += (char) c;  
+                    
+                    int nextChar = getc();
+                    if (nextChar == ' ' || nextChar == '\t') {
+                        state = 2; // Move to state 2
+                       
+                        while ((nextChar = getc()) == ' ' || nextChar == '\t') {
+                            
+                        }
+                        ungetc(nextChar); // Return the non-whitespace character back to the input
+                    } else {
+                        //token.lexeme += (char) c; // Add '#' to the lexeme
+                        state = 2; // Move to state 2
+                        ungetc(nextChar); // Return the next character back to the input
+                    }
+
                 }else if(c == '"'){
                     state = 4;
-                    token.lexeme += (char) c;
+                    
                 }else if (Character.isDigit(c)) {
-                    state = 5;
+                    
                     token.lexeme += (char) c;
+                    state = 5;
+                    token.type = Token.Type.NUMBER;
                 }else if (Character.isLetter(c)) {
                     state = 6;
                     token.lexeme += (char) c;
+                    
+                    
                 }else if(c == 'd'){
                     state = 7;
                     token.lexeme += (char) c;
@@ -105,8 +122,8 @@ public class LexicalAnalysis implements AutoCloseable {
                     break;
                 case 2:
                     if (c == ' ') {
-                        state = 2;
                         token.lexeme += (char) c;
+                        state = 2;
                         
                     }else{
                         state = 3;
@@ -114,12 +131,12 @@ public class LexicalAnalysis implements AutoCloseable {
                     }
                     break;
                 case 3:
-                    if(Character.isLetter(c)){
+                    if(Character.isLetter(c)){                     
+                        token.lexeme += (char) c;
                         state = 3;
-                        token.lexeme += (char) c; 
                     }else{
+                        System.out.println(token.lexeme);
                         state = 7;
-                        ungetc(c);
                     }
                     break;
                 case 4:
@@ -136,18 +153,19 @@ public class LexicalAnalysis implements AutoCloseable {
                         state = 5;
                         token.lexeme += (char) c; 
                     }else{
-                        state = 8;
+                        state = 7;
                         ungetc(c);
                     }
                     break;
                 case 6:
-                    if (Character.isDigit(c)) {
-                        state = 6;
-                        token.lexeme += (char) c; 
+                    if (Character.isLetterOrDigit(c)) {     
                         
+                        token.lexeme += (char) c;  
+
+                        state = 6;
                     }else{
-                        state = 8;
                         ungetc(c);
+                        state = 7;
                     }
 
                     break;
@@ -159,9 +177,11 @@ public class LexicalAnalysis implements AutoCloseable {
     
 
         if (state == 7)
+           
             token.type = keywords.containsKey(token.lexeme) ?   
                 keywords.get(token.lexeme) : Token.Type.NAME;
-                token.line = this.line;
+            
+        token.line = this.line;
 
         return token;
     }
